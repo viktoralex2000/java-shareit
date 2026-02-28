@@ -1,20 +1,21 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRequest {
+public class Item {
     private Long id;
+    private String name;
     private String description;
-    private User requestor;
-    private LocalDateTime created;
+    private Boolean available;
+    private User owner;
+    private ItemRequest request;
 }
