@@ -1,10 +1,7 @@
 package ru.practicum.shareit.item.storage;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.ForbiddenException;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import lombok.RequiredArgsConstructor;
@@ -23,9 +20,6 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     @Override
     public Item create(Long userId, Item item) {
-        User owner = userStorage.getById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        item.setOwner(owner);
         long id = ++idCounter;
         item.setId(id);
         items.put(id, item);
@@ -34,33 +28,13 @@ public class ItemInMemoryStorage implements ItemStorage {
 
     @Override
     public Item update(Long userId, Long itemId, Item item) {
-        Item existingItem = items.get(itemId);
-        if (existingItem == null) {
-            throw new NotFoundException("Вещь не найдена");
-        }
-        if (!existingItem.getOwner().getId().equals(userId)) {
-            throw new ForbiddenException("Только владелец может редактировать вещь");
-        }
-        if (item.getName() != null && !item.getName().isBlank()) {
-            existingItem.setName(item.getName());
-        }
-        if (item.getDescription() != null && !item.getDescription().isBlank()) {
-            existingItem.setDescription(item.getDescription());
-        }
-        if (item.getAvailable() != null) {
-            existingItem.setAvailable(item.getAvailable());
-        }
-        items.put(existingItem.getId(), existingItem);
-        return existingItem;
+        items.put(item.getId(), item);
+        return items.get(item.getId());
     }
 
     @Override
-    public Item getById(Long itemId, Long userId) {
-        Item item = items.get(itemId);
-        if (item == null) {
-            throw new NotFoundException("Вещь не найдена");
-        }
-        return item;
+    public Optional<Item> getById(Long id) {
+        return Optional.ofNullable(items.get(id));
     }
 
     @Override

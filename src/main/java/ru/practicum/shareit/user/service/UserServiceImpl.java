@@ -2,6 +2,8 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ConflictException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserMapper;
@@ -19,16 +21,32 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
+        userStorage.getByEmail(user.getEmail()).ifPresent(u -> {
+            throw new ConflictException("Пользователь с таким email уже существует");
+        });
         User savedUser = userStorage.create(user);
         return UserMapper.toUserDto(savedUser);
     }
 
     @Override
     public UserDto update(Long id, UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
-        user.setId(id);
-        User updatedUser = userStorage.update(user);
-        return UserMapper.toUserDto(updatedUser);
+        User updatedUser = UserMapper.toUser(userDto);
+        updatedUser.setId(id);
+        User user = userStorage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        if (updatedUser.getName() != null && !updatedUser.getName().isBlank()) {
+            user.setName(updatedUser.getName());
+        }
+        if (updatedUser.getEmail() != null && !updatedUser.getEmail().isBlank()) {
+            userStorage.getByEmail(updatedUser.getEmail())
+                    .filter(u -> !u.getId().equals(updatedUser.getId()))
+                    .ifPresent(u -> {
+                        throw new ConflictException("Email уже используется");
+                    });
+            user.setEmail(updatedUser.getEmail());
+        }
+        User responceUser = userStorage.update(user);
+        return UserMapper.toUserDto(responceUser);
     }
 
     @Override

@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.storage;
 import ru.practicum.shareit.item.Item;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemStorage {
 
@@ -10,7 +11,7 @@ public interface ItemStorage {
 
     Item update(Long userId, Long itemId, Item item);
 
-    Item getById(Long itemId, Long userId);
+    Optional<Item> getById(Long id);
 
     List<Item> getByOwner(Long ownerId);
 

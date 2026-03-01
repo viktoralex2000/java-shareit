@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.storage;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 
@@ -15,9 +14,6 @@ public class UserInMemoryStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        getByEmail(user.getEmail()).ifPresent(u -> {
-            throw new ConflictException("Пользователь с таким email уже существует");
-        });
         long id = ++idCounter;
         user.setId(id);
         users.put(id, user);
@@ -26,22 +22,8 @@ public class UserInMemoryStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        User existingUser = getById(user.getId())
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        if (user.getName() != null && !user.getName().isBlank()) {
-            existingUser.setName(user.getName());
-        }
-        if (user.getEmail() != null && !user.getEmail().isBlank()) {
-            getByEmail(user.getEmail())
-                    .filter(u -> !u.getId().equals(user.getId()))
-                    .ifPresent(u -> {
-                        throw new ConflictException("Email уже используется");
-                    });
-            existingUser.setEmail(user.getEmail());
-        }
-
-        users.put(existingUser.getId(), existingUser);
-        return existingUser;
+        users.put(user.getId(), user);
+        return users.get(user.getId());
     }
 
     @Override
