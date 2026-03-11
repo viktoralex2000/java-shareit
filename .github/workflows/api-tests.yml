@@ -11,6 +11,6 @@ jobs:
       postgres-version: 15
 
     secrets:
-      POSTGRES_DB: shareit
+      POSTGRES_DB: shareIt
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret
