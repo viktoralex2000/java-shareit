@@ -73,4 +73,14 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    // BadRequestException (400)
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleBadRequestException(BadRequestException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "error", e.getMessage(),
+                "status", HttpStatus.BAD_REQUEST.value(),
+                "timestamp", LocalDateTime.now()
+        ));
+    }
+
 }
