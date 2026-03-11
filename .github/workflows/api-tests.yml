@@ -6,11 +6,3 @@ on:
 jobs:
   build:
     uses: yandex-praktikum/java-shareit/.github/workflows/api-tests.yml@ci
-
-    with:
-      postgres-version: 15
-
-    secrets:
-      POSTGRES_DB: shareIt
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
