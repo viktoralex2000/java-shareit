@@ -14,6 +14,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,13 +64,24 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
 
-        if (!booking.getBooker().getId().equals(userId) &&
-                !booking.getItem().getOwner().getId().equals(userId)) {
+        boolean isBooker = Optional.ofNullable(booking.getBooker())
+                .map(User::getId)
+                .map(id -> id.equals(userId))
+                .orElse(false);
+
+        boolean isOwner = Optional.ofNullable(booking.getItem())
+                .map(Item::getOwner)
+                .map(User::getId)
+                .map(id -> id.equals(userId))
+                .orElse(false);
+
+        if (!isBooker && !isOwner) {
             throw new ForbiddenException("Нет доступа к бронированию");
         }
 
         return BookingMapper.toBookingDto(booking);
     }
+
 
     @Override
     public List<BookingDto> getBookingsByUser(Long userId, String state) {
