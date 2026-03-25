@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,40 +6,33 @@ import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ru.practicum.shareit.booking.dto.BookingDto;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BookingClient {
+public class ItemRequestClient {
 
     private final RestTemplate restTemplate = new RestTemplate(
             new HttpComponentsClientHttpRequestFactory()
     );
 
-    private static final String SERVER_URL = "http://localhost:9090/bookings";
+    private static final String SERVER_URL = "http://localhost:9090/requests";
 
-    public ResponseEntity<Object> create(Long userId, BookingDto bookingDto) {
-        return sendRequest("", HttpMethod.POST, bookingDto, userId);
+    public ResponseEntity<Object> create(Long userId, ItemRequestDto dto) {
+        return sendRequest("", HttpMethod.POST, dto, userId);
     }
 
-    public ResponseEntity<Object> updateStatus(Long userId, Long bookingId, Boolean approved) {
-        String path = "/" + bookingId + "?approved=" + approved;
-        return sendRequest(path, HttpMethod.PATCH, null, userId);
+    public ResponseEntity<Object> getByOwner(Long userId) {
+        return sendRequest("", HttpMethod.GET, null, userId);
     }
 
-    public ResponseEntity<Object> getById(Long userId, Long bookingId) {
-        return sendRequest("/" + bookingId, HttpMethod.GET, null, userId);
-    }
-
-    public ResponseEntity<Object> getAllByBooker(Long userId, String state, Integer from, Integer size) {
-        String path = "?state=" + state + "&from=" + from + "&size=" + size;
+    public ResponseEntity<Object> getAll(Long userId, Integer from, Integer size) {
+        String path = "/all?from=" + from + "&size=" + size;
         return sendRequest(path, HttpMethod.GET, null, userId);
     }
 
-    public ResponseEntity<Object> getAllByOwner(Long userId, String state, Integer from, Integer size) {
-        String path = "/owner?state=" + state + "&from=" + from + "&size=" + size;
-        return sendRequest(path, HttpMethod.GET, null, userId);
+    public ResponseEntity<Object> getById(Long userId, Long requestId) {
+        return sendRequest("/" + requestId, HttpMethod.GET, null, userId);
     }
 
     private ResponseEntity<Object> sendRequest(String path,
