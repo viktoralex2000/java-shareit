@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,8 @@ public class BookingClient {
             new HttpComponentsClientHttpRequestFactory()
     );
 
-    private static final String SERVER_URL = "http://localhost:9090/bookings";
+    @Value("${shareit-server.url}")
+    private String serverUrl;
 
     public ResponseEntity<Object> create(Long userId, BookingDto bookingDto) {
         return sendRequest("", HttpMethod.POST, bookingDto, userId);
@@ -53,7 +55,7 @@ public class BookingClient {
         }
         HttpEntity<?> request = new HttpEntity<>(body, headers);
         return restTemplate.exchange(
-                SERVER_URL + path,
+                serverUrl + path,
                 method,
                 request,
                 Object.class

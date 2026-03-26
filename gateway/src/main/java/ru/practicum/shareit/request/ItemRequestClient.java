@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,8 @@ public class ItemRequestClient {
             new HttpComponentsClientHttpRequestFactory()
     );
 
-    private static final String SERVER_URL = "http://localhost:9090/requests";
+    @Value("${shareit-server.url}")
+    private String serverUrl;
 
     public ResponseEntity<Object> create(Long userId, ItemRequestDto dto) {
         return sendRequest("", HttpMethod.POST, dto, userId);
@@ -46,7 +48,7 @@ public class ItemRequestClient {
         }
         HttpEntity<?> request = new HttpEntity<>(body, headers);
         return restTemplate.exchange(
-                SERVER_URL + path,
+                serverUrl + path,
                 method,
                 request,
                 Object.class
