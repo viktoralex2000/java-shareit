@@ -32,16 +32,8 @@ class UserControllerTest {
 
     @Test
     void create_shouldReturn201() throws Exception {
-        UserDto request = UserDto.builder()
-                .name("Ivan")
-                .email("ivan@mail.ru")
-                .build();
-
-        UserDto response = UserDto.builder()
-                .id(1L)
-                .name("Ivan")
-                .email("ivan@mail.ru")
-                .build();
+        UserDto request = UserDto.builder().name("Ivan").email("ivan@mail.ru").build();
+        UserDto response = UserDto.builder().id(1L).name("Ivan").email("ivan@mail.ru").build();
 
         when(userService.create(any(UserDto.class))).thenReturn(response);
 
@@ -55,13 +47,19 @@ class UserControllerTest {
     }
 
     @Test
-    void getById_shouldReturn200() throws Exception {
-        UserDto response = UserDto.builder()
-                .id(1L)
-                .name("Ivan")
-                .email("ivan@mail.ru")
-                .build();
+    void create_shouldReturn409_whenEmailExists() throws Exception {
+        UserDto request = UserDto.builder().name("Ivan").email("ivan@mail.ru").build();
+        when(userService.create(any(UserDto.class))).thenThrow(new ru.practicum.shareit.exception.ConflictException("Email exists"));
 
+        mvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void getById_shouldReturn200() throws Exception {
+        UserDto response = UserDto.builder().id(1L).name("Ivan").email("ivan@mail.ru").build();
         when(userService.getById(1L)).thenReturn(response);
 
         mvc.perform(get("/users/1"))
@@ -69,6 +67,14 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Ivan"))
                 .andExpect(jsonPath("$.email").value("ivan@mail.ru"));
+    }
+
+    @Test
+    void getById_shouldReturn404_whenNotFound() throws Exception {
+        when(userService.getById(99L)).thenThrow(new ru.practicum.shareit.exception.NotFoundException("Not found"));
+
+        mvc.perform(get("/users/99"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -87,16 +93,8 @@ class UserControllerTest {
 
     @Test
     void update_shouldReturn200() throws Exception {
-        UserDto request = UserDto.builder()
-                .name("Updated")
-                .email("updated@mail.ru")
-                .build();
-
-        UserDto response = UserDto.builder()
-                .id(1L)
-                .name("Updated")
-                .email("updated@mail.ru")
-                .build();
+        UserDto request = UserDto.builder().name("Updated").email("updated@mail.ru").build();
+        UserDto response = UserDto.builder().id(1L).name("Updated").email("updated@mail.ru").build();
 
         when(userService.update(eq(1L), any(UserDto.class))).thenReturn(response);
 
@@ -110,10 +108,32 @@ class UserControllerTest {
     }
 
     @Test
+    void update_shouldReturn404_whenUserNotFound() throws Exception {
+        UserDto request = UserDto.builder().name("Updated").email("updated@mail.ru").build();
+        when(userService.update(eq(99L), any(UserDto.class))).thenThrow(new ru.practicum.shareit.exception.NotFoundException("Not found"));
+
+        mvc.perform(patch("/users/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void delete_shouldReturn204() throws Exception {
         doNothing().when(userService).delete(1L);
 
         mvc.perform(delete("/users/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void delete_shouldReturn404_whenUserNotFound() throws Exception {
+        doNothing().when(userService).delete(1L);
+        doNothing().when(userService).delete(99L);
+        org.mockito.Mockito.doThrow(new ru.practicum.shareit.exception.NotFoundException("Not found"))
+                .when(userService).delete(99L);
+
+        mvc.perform(delete("/users/99"))
+                .andExpect(status().isNotFound());
     }
 }

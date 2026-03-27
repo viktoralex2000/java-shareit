@@ -51,10 +51,7 @@ class ItemRequestServiceImplIntegrationTest {
 
     @Test
     void create_shouldSaveRequest() {
-        ItemRequestDto dto = ItemRequestDto.builder()
-                .description("Need item")
-                .build();
-
+        ItemRequestDto dto = ItemRequestDto.builder().description("Need item").build();
         ItemRequestDto saved = requestService.create(requester.getId(), dto);
 
         assertNotNull(saved.getId());

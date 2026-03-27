@@ -72,6 +72,38 @@ class UserServiceImplIntegrationTest {
     }
 
     @Test
+    void updateUser_shouldUpdateOnlyName_whenEmailNull() {
+        UserDto savedUser = userService.create(userDto);
+
+        UserDto updateDto = UserDto.builder()
+                .name("NameOnly")
+                .email(null)
+                .build();
+
+        UserDto updatedUser = userService.update(savedUser.getId(), updateDto);
+
+        assertEquals("NameOnly", updatedUser.getName());
+        assertEquals(savedUser.getEmail(), updatedUser.getEmail());
+    }
+
+    @Test
+    void updateUser_shouldThrowConflict_whenEmailTaken() {
+        userService.create(userDto); // Ivan
+        UserDto other = UserDto.builder().name("Petr").email("petr@mail.ru").build();
+        UserDto savedOther = userService.create(other);
+
+        UserDto updateDto = UserDto.builder().email("ivan@mail.ru").build();
+
+        assertThrows(ConflictException.class, () -> userService.update(savedOther.getId(), updateDto));
+    }
+
+    @Test
+    void updateUser_shouldThrowNotFound_whenUserDoesNotExist() {
+        UserDto updateDto = UserDto.builder().name("NoUser").build();
+        assertThrows(NotFoundException.class, () -> userService.update(99L, updateDto));
+    }
+
+    @Test
     void getById_shouldReturnUser() {
         UserDto savedUser = userService.create(userDto);
 
@@ -90,5 +122,10 @@ class UserServiceImplIntegrationTest {
 
         assertFalse(userRepository.existsById(savedUser.getId()));
         assertThrows(NotFoundException.class, () -> userService.getById(savedUser.getId()));
+    }
+
+    @Test
+    void delete_shouldThrowNotFound_whenUserDoesNotExist() {
+        assertThrows(NotFoundException.class, () -> userService.delete(99L));
     }
 }

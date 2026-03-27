@@ -35,7 +35,7 @@ class ItemRequestDtoJsonTest {
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Need drill");
-        assertThat(result).hasJsonPath("$.items[0].id");
+        assertThat(result).extractingJsonPathNumberValue("$.requesterId").isEqualTo(2);
         assertThat(result).extractingJsonPathStringValue("$.items[0].name").isEqualTo("Drill");
     }
 
@@ -54,5 +54,28 @@ class ItemRequestDtoJsonTest {
         assertThat(dto.getDescription()).isEqualTo("Need drill");
         assertThat(dto.getRequesterId()).isEqualTo(2L);
         assertThat(dto.getCreated()).isEqualTo(LocalDateTime.of(2026, 3, 27, 12, 0));
+    }
+
+    @Test
+    void shouldSerializeWithEmptyFields() throws Exception {
+        ItemRequestDto dto = ItemRequestDto.builder().build();
+        var result = json.write(dto);
+
+        assertThat(result).extractingJsonPathNumberValue("$.id").isNull();
+        assertThat(result).extractingJsonPathStringValue("$.description").isNull();
+        assertThat(result).extractingJsonPathNumberValue("$.requesterId").isNull();
+        assertThat(result).hasJsonPath("$.items");
+    }
+
+    @Test
+    void shouldDeserializeWithMissingFields() throws Exception {
+        String content = "{}";
+        ItemRequestDto dto = json.parseObject(content);
+
+        assertThat(dto.getId()).isNull();
+        assertThat(dto.getDescription()).isNull();
+        assertThat(dto.getRequesterId()).isNull();
+        assertThat(dto.getItems()).isNullOrEmpty();
+        assertThat(dto.getCreated()).isNull();
     }
 }

@@ -31,10 +31,7 @@ class ItemRequestControllerTest {
 
     @Test
     void create_shouldReturn201() throws Exception {
-        ItemRequestDto request = ItemRequestDto.builder()
-                .description("Need item")
-                .build();
-
+        ItemRequestDto request = ItemRequestDto.builder().description("Need item").build();
         ItemRequestDto response = ItemRequestDto.builder()
                 .id(1L)
                 .description("Need item")
@@ -102,5 +99,15 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Need item"));
+    }
+
+    @Test
+    void getById_shouldReturn404_whenNotFound() throws Exception {
+        when(requestService.getById(1L, 99L))
+                .thenThrow(new ru.practicum.shareit.exception.NotFoundException("Not found"));
+
+        mvc.perform(get("/requests/99")
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isNotFound());
     }
 }
