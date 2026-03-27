@@ -80,14 +80,14 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void create_shouldThrowBadRequest_whenEndBeforeStart() {
+    void create_shouldThrowNotFound_whenItemDoesNotExist() {
         BookingDto dto = BookingDto.builder()
-                .itemId(availableItem.getId())
-                .start(LocalDateTime.now().plusDays(2))
-                .end(LocalDateTime.now().plusDays(1))
+                .itemId(999L)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
                 .build();
 
-        assertThrows(BadRequestException.class, () -> bookingService.create(booker.getId(), dto));
+        assertThrows(NotFoundException.class, () -> bookingService.create(booker.getId(), dto));
     }
 
     @Test
