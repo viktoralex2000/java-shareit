@@ -360,15 +360,4 @@ class BookingServiceImplIntegrationTest {
                 bookingService.getBookingsByOwner(owner.getId(), "CURRENT").get(0).getId());
     }
 
-    /*@Test
-    void getBookingsByUser_shouldThrowBadRequest_whenUnknownState() {
-        assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByUser(booker.getId(), "UNKNOWN_STATE"));
-    }
-
-    @Test
-    void getBookingsByOwner_shouldThrowBadRequest_whenUnknownState() {
-        assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByOwner(owner.getId(), "UNKNOWN_STATE"));
-    }*/
 }

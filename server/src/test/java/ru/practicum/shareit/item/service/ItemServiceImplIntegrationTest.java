@@ -532,23 +532,4 @@ class ItemServiceImplIntegrationTest {
         assertEquals("Comment 1", items.get(0).getComments().get(0).getText());
     }
 
-    /*@Test
-    void getItemsByOwner_shouldNotAttachBookings_whenRequesterIsNotOwner() {
-        ItemDto savedItem = itemService.create(owner.getId(), itemDto);
-        Item item = itemRepository.findById(savedItem.getId()).orElseThrow();
-
-        bookingRepository.save(Booking.builder()
-                .item(item)
-                .booker(user)
-                .start(LocalDateTime.now().minusDays(3))
-                .end(LocalDateTime.now().minusDays(2))
-                .status(BookingStatus.APPROVED)
-                .build());
-
-        List<ItemDto> items = itemService.getItemsByOwner(owner.getId());
-
-        assertEquals(1, items.size());
-        assertNull(items.get(0).getLastBooking());
-        assertNull(items.get(0).getNextBooking());
-    }*/
 }
