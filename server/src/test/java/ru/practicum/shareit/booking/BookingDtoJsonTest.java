@@ -56,4 +56,23 @@ class BookingDtoJsonTest {
         assertThat(dto.getStart()).isEqualTo(LocalDateTime.of(2026, 3, 27, 10, 0));
         assertThat(dto.getEnd()).isEqualTo(LocalDateTime.of(2026, 3, 28, 10, 0));
     }
+
+    @Test
+    void shouldSerializeBookingDtoWithNullBookerOrItem() throws Exception {
+        BookingDto dto = BookingDto.builder()
+                .id(10L)
+                .itemId(5L)
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().plusDays(1))
+                .status(BookingStatus.WAITING)
+                .build();
+
+        var result = json.write(dto);
+
+        assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(10);
+        assertThat(result).hasJsonPath("$.itemId");
+        assertThat(result).doesNotHaveJsonPath("$.booker");
+        assertThat(result).doesNotHaveJsonPath("$.item");
+    }
+
 }

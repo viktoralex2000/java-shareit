@@ -11,6 +11,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.booking.dto.BookingUserDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -126,5 +128,35 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1L));
+    }
+
+    // ----------------- Новые тесты (исправленные) -----------------
+
+    @Test
+    void create_shouldReturnBadRequestForInvalidDates() throws Exception {
+        BookingDto invalid = BookingDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now().plusDays(2))
+                .end(LocalDateTime.now().plusDays(1))
+                .build();
+
+        when(bookingService.create(eq(1L), any(BookingDto.class)))
+                .thenThrow(new BadRequestException("Invalid dates"));
+
+        mvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void get_shouldReturnNotFoundForNonexistentBooking() throws Exception {
+        when(bookingService.getBooking(1L, 999L))
+                .thenThrow(new NotFoundException("Booking not found"));
+
+        mvc.perform(get("/bookings/999")
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isNotFound());
     }
 }

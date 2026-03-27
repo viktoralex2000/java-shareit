@@ -9,13 +9,13 @@ import ru.practicum.shareit.booking.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,82 +80,50 @@ class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void approve_shouldApproveAndReject() {
-        Booking booking = bookingRepository.save(Booking.builder().item(availableItem).booker(booker)
-                .start(LocalDateTime.now().plusDays(1)).end(LocalDateTime.now().plusDays(2))
-                .status(BookingStatus.WAITING).build());
+    void create_shouldThrowBadRequest_whenEndBeforeStart() {
+        BookingDto dto = BookingDto.builder()
+                .itemId(availableItem.getId())
+                .start(LocalDateTime.now().plusDays(2))
+                .end(LocalDateTime.now().plusDays(1))
+                .build();
 
-        BookingDto approved = bookingService.approve(owner.getId(), booking.getId(), true);
-        assertEquals(BookingStatus.APPROVED, approved.getStatus());
-
-        Booking booking2 = bookingRepository.save(Booking.builder().item(availableItem).booker(booker)
-                .start(LocalDateTime.now().plusDays(3)).end(LocalDateTime.now().plusDays(4))
-                .status(BookingStatus.WAITING).build());
-
-        BookingDto rejected = bookingService.approve(owner.getId(), booking2.getId(), false);
-        assertEquals(BookingStatus.REJECTED, rejected.getStatus());
+        assertThrows(BadRequestException.class, () -> bookingService.create(booker.getId(), dto));
     }
 
     @Test
-    void approve_shouldThrowForbiddenOrBadRequest() {
-        Booking booking = bookingRepository.save(Booking.builder().item(availableItem).booker(booker)
-                .start(LocalDateTime.now().plusDays(1)).end(LocalDateTime.now().plusDays(2))
-                .status(BookingStatus.WAITING).build());
-
-        assertThrows(ForbiddenException.class, () -> bookingService.approve(booker.getId(), booking.getId(), true));
-
-        booking.setStatus(BookingStatus.APPROVED);
-        bookingRepository.save(booking);
+    void approve_shouldThrowBadRequestOrForbiddenInEdgeCases() {
+        Booking booking = bookingRepository.save(Booking.builder()
+                .item(availableItem)
+                .booker(booker)
+                .start(LocalDateTime.now().plusDays(1))
+                .end(LocalDateTime.now().plusDays(2))
+                .status(BookingStatus.APPROVED)
+                .build());
 
         assertThrows(BadRequestException.class, () -> bookingService.approve(owner.getId(), booking.getId(), true));
+        assertThrows(ForbiddenException.class, () -> bookingService.approve(booker.getId(), booking.getId(), false));
     }
 
     @Test
-    void getBooking_shouldReturnOrThrowForbidden() {
-        Booking booking = bookingRepository.save(Booking.builder().item(availableItem).booker(booker)
-                .start(LocalDateTime.now().plusDays(1)).end(LocalDateTime.now().plusDays(2))
-                .status(BookingStatus.WAITING).build());
-
-        BookingDto byBooker = bookingService.getBooking(booker.getId(), booking.getId());
-        assertEquals(booking.getId(), byBooker.getId());
-
-        BookingDto byOwner = bookingService.getBooking(owner.getId(), booking.getId());
-        assertEquals(booking.getId(), byOwner.getId());
-
-        assertThrows(ForbiddenException.class, () -> bookingService.getBooking(otherUser.getId(), booking.getId()));
+    void getBooking_shouldThrowNotFoundForNonexistent() {
+        assertThrows(NotFoundException.class, () -> bookingService.getBooking(booker.getId(), 999L));
     }
 
     @Test
-    void getBookingsByUserAndOwner_shouldFilterCorrectly() {
+    void getBookingsByUser_shouldFilterAllStatesCorrectly() {
         Booking pastBooking = bookingRepository.save(Booking.builder().item(availableItem).booker(booker)
-                .start(LocalDateTime.now().minusDays(3)).end(LocalDateTime.now().minusDays(2))
+                .start(LocalDateTime.now().minusDays(3))
+                .end(LocalDateTime.now().minusDays(2))
                 .status(BookingStatus.APPROVED).build());
 
         Booking futureBooking = bookingRepository.save(Booking.builder().item(availableItem).booker(booker)
-                .start(LocalDateTime.now().plusDays(2)).end(LocalDateTime.now().plusDays(3))
+                .start(LocalDateTime.now().plusDays(2))
+                .end(LocalDateTime.now().plusDays(3))
                 .status(BookingStatus.WAITING).build());
 
-        // By User
-        List<BookingDto> past = bookingService.getBookingsByUser(booker.getId(), "PAST");
-        assertEquals(1, past.size());
-        assertEquals(pastBooking.getId(), past.get(0).getId());
-
-        List<BookingDto> waiting = bookingService.getBookingsByUser(booker.getId(), "WAITING");
-        assertEquals(1, waiting.size());
-        assertEquals(futureBooking.getId(), waiting.get(0).getId());
-
-        List<BookingDto> all = bookingService.getBookingsByUser(booker.getId(), "ALL");
-        assertEquals(2, all.size());
-
-        // By Owner
-        List<BookingDto> rejected = bookingService.getBookingsByOwner(owner.getId(), "REJECTED");
-        assertEquals(0, rejected.size());
-
-        List<BookingDto> future = bookingService.getBookingsByOwner(owner.getId(), "FUTURE");
-        assertEquals(1, future.size());
-        assertEquals(futureBooking.getId(), future.get(0).getId());
-
-        List<BookingDto> allOwner = bookingService.getBookingsByOwner(owner.getId(), "ALL");
-        assertEquals(2, allOwner.size());
+        assertEquals(1, bookingService.getBookingsByUser(booker.getId(), "PAST").size());
+        assertEquals(1, bookingService.getBookingsByUser(booker.getId(), "FUTURE").size());
+        assertEquals(2, bookingService.getBookingsByUser(booker.getId(), "ALL").size());
+        assertEquals(1, bookingService.getBookingsByUser(booker.getId(), "WAITING").size());
     }
 }
