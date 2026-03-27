@@ -20,11 +20,9 @@ class ItemRequestControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenDescriptionBlank() throws Exception {
-        String content = """
-                {
-                  "description": ""
-                }
-                """;
+        String content = "{"
+                + "  \"description\": \"\""
+                + "}";
 
         mvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", 1)

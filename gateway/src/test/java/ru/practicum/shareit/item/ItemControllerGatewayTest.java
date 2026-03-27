@@ -20,13 +20,11 @@ class ItemControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenNameBlank() throws Exception {
-        String content = """
-                {
-                  "name": "",
-                  "description": "Some description",
-                  "available": true
-                }
-                """;
+        String content = "{"
+                + "  \"name\": \"\","
+                + "  \"description\": \"Some description\","
+                + "  \"available\": true"
+                + "}";
 
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", 1)
@@ -37,13 +35,11 @@ class ItemControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenDescriptionBlank() throws Exception {
-        String content = """
-                {
-                  "name": "Drill",
-                  "description": "",
-                  "available": true
-                }
-                """;
+        String content = "{"
+                + "  \"name\": \"Drill\","
+                + "  \"description\": \"\","
+                + "  \"available\": true"
+                + "}";
 
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", 1)
@@ -54,12 +50,10 @@ class ItemControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenAvailableNull() throws Exception {
-        String content = """
-                {
-                  "name": "Drill",
-                  "description": "Some description"
-                }
-                """;
+        String content = "{"
+                + "  \"name\": \"Drill\","
+                + "  \"description\": \"Some description\""
+                + "}";
 
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", 1)

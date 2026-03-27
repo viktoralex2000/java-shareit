@@ -20,12 +20,10 @@ class UserControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenEmailInvalid() throws Exception {
-        String content = """
-                {
-                  "name": "Ivan",
-                  "email": "invalid-email"
-                }
-                """;
+        String content = "{"
+                + "  \"name\": \"Ivan\","
+                + "  \"email\": \"invalid-email\""
+                + "}";
 
         mvc.perform(post("/users")
                         .contentType("application/json")
@@ -35,12 +33,10 @@ class UserControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenNameBlank() throws Exception {
-        String content = """
-                {
-                  "name": "",
-                  "email": "ivan@mail.ru"
-                }
-                """;
+        String content = "{"
+                + "  \"name\": \"\","
+                + "  \"email\": \"ivan@mail.ru\""
+                + "}";
 
         mvc.perform(post("/users")
                         .contentType("application/json")

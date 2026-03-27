@@ -20,12 +20,10 @@ class BookingControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenStartNull() throws Exception {
-        String content = """
-                {
-                  "itemId": 1,
-                  "end": "2026-03-28T10:00:00"
-                }
-                """;
+        String content = "{"
+                + "  \"itemId\": 1,"
+                + "  \"end\": \"2026-03-28T10:00:00\""
+                + "}";
 
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", 1)
@@ -36,12 +34,10 @@ class BookingControllerGatewayTest {
 
     @Test
     void create_shouldReturn400_whenItemIdNull() throws Exception {
-        String content = """
-                {
-                  "start": "2026-03-27T10:00:00",
-                  "end": "2026-03-28T10:00:00"
-                }
-                """;
+        String content = "{"
+                + "  \"start\": \"2026-03-27T10:00:00\","
+                + "  \"end\": \"2026-03-28T10:00:00\""
+                + "}";
 
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", 1)
