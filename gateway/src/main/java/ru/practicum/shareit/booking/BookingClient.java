@@ -21,6 +21,8 @@ public class BookingClient {
     @Value("${shareit-server.url}")
     private String serverUrl;
 
+    private static final String API_PREFIX = "/bookings";
+
     public ResponseEntity<Object> create(Long userId, BookingDto bookingDto) {
         return sendRequest("", HttpMethod.POST, bookingDto, userId);
     }
@@ -50,12 +52,15 @@ public class BookingClient {
                                                Long userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+
         if (userId != null) {
             headers.set("X-Sharer-User-Id", userId.toString());
         }
+
         HttpEntity<?> request = new HttpEntity<>(body, headers);
+
         return restTemplate.exchange(
-                serverUrl + path,
+                serverUrl + API_PREFIX + path,
                 method,
                 request,
                 Object.class

@@ -20,6 +20,8 @@ public class ItemRequestClient {
     @Value("${shareit-server.url}")
     private String serverUrl;
 
+    private static final String API_PREFIX = "/requests";
+
     public ResponseEntity<Object> create(Long userId, ItemRequestDto dto) {
         return sendRequest("", HttpMethod.POST, dto, userId);
     }
@@ -43,12 +45,15 @@ public class ItemRequestClient {
                                                Long userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+
         if (userId != null) {
             headers.set("X-Sharer-User-Id", userId.toString());
         }
+
         HttpEntity<?> request = new HttpEntity<>(body, headers);
+
         return restTemplate.exchange(
-                serverUrl + path,
+                serverUrl + API_PREFIX + path,
                 method,
                 request,
                 Object.class
