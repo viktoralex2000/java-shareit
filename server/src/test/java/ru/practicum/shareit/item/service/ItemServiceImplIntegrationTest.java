@@ -23,7 +23,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(ItemServiceImpl.class)
+@Import({ItemServiceImpl.class, ItemMapper.class, CommentMapper.class})
 class ItemServiceImplIntegrationTest {
 
     @Autowired

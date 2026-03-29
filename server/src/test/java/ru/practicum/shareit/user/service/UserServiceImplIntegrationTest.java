@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Import;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserDto;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(UserServiceImpl.class)
+@Import({UserServiceImpl.class, UserMapper.class})
 class UserServiceImplIntegrationTest {
 
     @Autowired

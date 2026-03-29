@@ -21,7 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(BookingServiceImpl.class)
+@Import({BookingServiceImpl.class, BookingMapper.class})
 class BookingServiceImplIntegrationTest {
 
     @Autowired
