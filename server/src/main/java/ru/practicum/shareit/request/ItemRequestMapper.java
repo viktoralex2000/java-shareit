@@ -1,13 +1,13 @@
 package ru.practicum.shareit.request;
 
-import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@UtilityClass
+@Component
 public class ItemRequestMapper {
 
     public ItemRequestDto toDto(ItemRequest request, List<Item> items) {
@@ -49,4 +49,6 @@ public class ItemRequestMapper {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
 }

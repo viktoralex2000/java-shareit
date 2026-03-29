@@ -27,13 +27,15 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final ItemRequestRepository requestRepository;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         var owner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-        Item item = ItemMapper.toItem(itemDto);
+        Item item = itemMapper.toItem(itemDto);
         item.setOwner(owner);
 
         if (itemDto.getRequestId() != null) {
@@ -93,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return itemRepository.searchAvailable(text).stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
@@ -127,11 +129,11 @@ public class ItemServiceImpl implements ItemService {
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
-        return CommentMapper.toCommentDto(savedComment);
+        return commentMapper.toCommentDto(savedComment);
     }
 
     private ItemDto enrichItemDto(Item item, Long requesterId) {
-        ItemDto dto = ItemMapper.toItemDto(item);
+        ItemDto dto = itemMapper.toItemDto(item);
 
         attachComments(dto, item.getId());
         attachBookings(dto, item, requesterId);
@@ -141,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void attachComments(ItemDto dto, Long itemId) {
         List<CommentDto> comments = commentRepository.findByItemIdOrderByCreatedDesc(itemId).stream()
-                .map(CommentMapper::toCommentDto)
+                .map(commentMapper::toCommentDto)
                 .collect(Collectors.toList());
 
         dto.setComments(comments);

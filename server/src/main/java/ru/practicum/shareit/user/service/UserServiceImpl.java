@@ -17,17 +17,18 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper mapper;
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
+        User user = mapper.toUser(userDto);
 
         userRepository.findByEmail(user.getEmail()).ifPresent(u -> {
             throw new ConflictException("Пользователь с таким email уже существует");
         });
 
         User savedUser = userRepository.save(user);
-        return UserMapper.toUserDto(savedUser);
+        return mapper.toUserDto(savedUser);
     }
 
     @Override
@@ -51,20 +52,20 @@ public class UserServiceImpl implements UserService {
         }
 
         User updatedUser = userRepository.save(user);
-        return UserMapper.toUserDto(updatedUser);
+        return mapper.toUserDto(updatedUser);
     }
 
     @Override
     public UserDto getById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        return UserMapper.toUserDto(user);
+        return mapper.toUserDto(user);
     }
 
     @Override
     public List<UserDto> getAll() {
         return userRepository.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(mapper::toUserDto)
                 .collect(Collectors.toList());
     }
 

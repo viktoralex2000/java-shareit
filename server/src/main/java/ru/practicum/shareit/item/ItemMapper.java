@@ -1,8 +1,11 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class ItemMapper {
 
-    public static ItemDto toItemDto(Item item) {
+    public ItemDto toItemDto(Item item) {
         if (item == null) {
             return null;
         }
@@ -16,7 +19,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item toItem(ItemDto itemDto) {
+    public Item toItem(ItemDto itemDto) {
         if (itemDto == null) {
             return null;
         }

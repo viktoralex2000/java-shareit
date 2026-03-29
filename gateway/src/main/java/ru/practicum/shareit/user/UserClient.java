@@ -29,8 +29,12 @@ public class UserClient {
 
     public ResponseEntity<Object> update(Long userId, UserDto userDto) {
         Map<String, Object> updates = new HashMap<>();
-        if (userDto.getName() != null) updates.put("name", userDto.getName());
-        if (userDto.getEmail() != null) updates.put("email", userDto.getEmail());
+        if (userDto.getName() != null) {
+            updates.put("name", userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            updates.put("email", userDto.getEmail());
+        }
 
         return sendRequest("/users/{id}", HttpMethod.PATCH, updates, userId);
     }

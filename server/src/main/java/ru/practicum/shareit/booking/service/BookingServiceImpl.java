@@ -24,6 +24,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingMapper mapper;
 
     @Override
     public BookingDto create(Long userId, BookingDto bookingDto) {
@@ -37,9 +38,9 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Вещь недоступна для бронирования");
         }
 
-        Booking booking = BookingMapper.toBooking(bookingDto, booker, item);
+        Booking booking = mapper.toBooking(bookingDto, booker, item);
         Booking saved = bookingRepository.save(booking);
-        return BookingMapper.toBookingDto(saved);
+        return mapper.toBookingDto(saved);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         Booking saved = bookingRepository.save(booking);
-        return BookingMapper.toBookingDto(saved);
+        return mapper.toBookingDto(saved);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ForbiddenException("Нет доступа к бронированию");
         }
 
-        return BookingMapper.toBookingDto(booking);
+        return mapper.toBookingDto(booking);
     }
 
 
@@ -92,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
 
         return bookings.stream()
                 .filter(b -> filterByState(b, state))
-                .map(BookingMapper::toBookingDto)
+                .map(mapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -105,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
 
         return bookings.stream()
                 .filter(b -> filterByState(b, state))
-                .map(BookingMapper::toBookingDto)
+                .map(mapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 

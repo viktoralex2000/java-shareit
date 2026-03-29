@@ -1,8 +1,11 @@
 package ru.practicum.shareit.user;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class UserMapper {
 
-    public static UserDto toUserDto(User user) {
+    public UserDto toUserDto(User user) {
         if (user == null) {
             return null;
         }
@@ -13,7 +16,7 @@ public class UserMapper {
                 .build();
     }
 
-    public static User toUser(UserDto userDto) {
+    public User toUser(UserDto userDto) {
         if (userDto == null) {
             return null;
         }

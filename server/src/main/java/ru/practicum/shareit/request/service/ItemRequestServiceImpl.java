@@ -21,18 +21,19 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository requestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final ItemRequestMapper mapper;
 
     @Override
     public ItemRequestDto create(Long userId, ItemRequestDto dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
-        ItemRequest request = ItemRequestMapper.toItemRequest(dto);
+        ItemRequest request = mapper.toItemRequest(dto);
         request.setRequester(user);
         request.setCreated(LocalDateTime.now());
 
         ItemRequest saved = requestRepository.save(request);
-        return ItemRequestMapper.toDto(saved, List.of());
+        return mapper.toDto(saved, List.of());
     }
 
     @Override
@@ -62,16 +63,26 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .orElseThrow(() -> new NotFoundException("Запрос не найден"));
 
         List<Item> items = itemRepository.findByRequestId(requestId);
-        return ItemRequestMapper.toDto(request, items);
+        return mapper.toDto(request, items);
     }
 
     private List<ItemRequestDto> mapWithItems(List<ItemRequest> requests) {
-        Map<Long, List<Item>> itemsByRequest = itemRepository.findAll().stream()
+        if (requests.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> requestIds = requests.stream()
+                .map(ItemRequest::getId)
+                .collect(Collectors.toList());
+
+        List<Item> items = itemRepository.findByRequestIdIn(requestIds);
+
+        Map<Long, List<Item>> itemsByRequest = items.stream()
                 .filter(item -> item.getRequest() != null)
                 .collect(Collectors.groupingBy(item -> item.getRequest().getId()));
 
         return requests.stream()
-                .map(req -> ItemRequestMapper.toDto(
+                .map(req -> mapper.toDto(
                         req,
                         itemsByRequest.getOrDefault(req.getId(), List.of())
                 ))
